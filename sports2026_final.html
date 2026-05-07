@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 아이패밀리SC 체육대회 관리</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:#f5f4f0;color:#1a1a1a;font-size:14px}
+:root{--purple:#534AB7;--purple-l:#EEEDFE;--purple-m:#7F77DD;--teal:#0F6E56;--teal-l:#E1F5EE;--coral:#993C1D;--coral-l:#FAECE7;--red:#A32D2D;--red-l:#FCEBEB;--green:#3B6D11;--green-l:#EAF3DE;--amber:#BA7517;--amber-l:#FAEEDA;--gray:#5F5E5A;--gray-l:#F1EFE8;--border:#e5e3dc;--bg:#f5f4f0}
+.app-header{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.app-header h1{font-size:16px;font-weight:600;color:#1a1a1a}
+.app-header .sub{font-size:12px;color:var(--gray);margin-left:8px}
+.admin-btn{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--gray)}
+.admin-btn:hover{background:var(--gray-l)}
+.admin-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.main{max-width:1300px;margin:0 auto;padding:20px 20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.stat{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid var(--border)}
+.stat .s-lbl{font-size:11px;color:var(--gray);margin-bottom:4px}
+.stat .s-num{font-size:24px;font-weight:600}
+.stat .s-sub{font-size:11px;color:#aaa;margin-top:2px}
+.stat.c-purple .s-num{color:var(--purple)}
+.stat.c-teal .s-num{color:var(--teal)}
+.stat.c-coral .s-num{color:var(--coral)}
+.stat.c-red .s-num{color:var(--red)}
+.stat.c-green .s-num{color:var(--green)}
+.stat.c-amber .s-num{color:var(--amber)}
+.controls{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.controls input,.controls select{height:34px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:13px;padding:0 12px;outline:none;color:#1a1a1a}
+.controls input{flex:1;min-width:180px}
+.controls input:focus,.controls select:focus{border-color:var(--purple-m)}
+.btn{font-size:12px;height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;display:inline-flex;align-items:center;gap:5px;color:#1a1a1a;white-space:nowrap}
+.btn:hover{background:var(--gray-l)}
+.btn.primary{background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn.primary:hover{background:#433b9e}
+.btn.danger{background:var(--red-l);color:var(--red);border-color:#f09595}
+.btn.restore{background:#3B6D11;color:#fff;border-color:#27500A;font-weight:600}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.tab{font-size:13px;padding:8px 16px;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:600}
+.tab:hover:not(.active){color:#1a1a1a}
+.tab-badge{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--red-l);color:var(--red);margin-left:4px;vertical-align:middle}
+.tbl-wrap{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--gray);padding:8px 12px;border-bottom:1px solid var(--border);background:#fafaf8;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
+td{padding:9px 12px;border-bottom:1px solid #f0ede6;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fdfcfb}
+tr.retired td{opacity:.45}
+tr.my-row td{background:#FFFBF0!important}
+tr.my-row:hover td{background:#FFF5DC!important}
+.b{font-size:11px;padding:2px 8px;border-radius:20px;white-space:nowrap;font-weight:500}
+.b-웨딩{background:#FBEAF0;color:#72243E}
+.b-브랜드{background:#EEEDFE;color:#3C3489}
+.b-경영{background:#E1F5EE;color:#085041}
+.b-기술{background:#E6F1FB;color:#0C447C}
+.b-임원{background:#FAEEDA;color:#633806}
+.att-sel{font-size:12px;padding:4px 8px;border-radius:20px;border:1px solid;cursor:pointer;font-weight:500;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:22px}
+.att-sel-AB{background-color:#EAF3DE;color:#3B6D11;border-color:#97C459}
+.att-sel-AO{background-color:#E6F1FB;color:#185FA5;border-color:#85B7EB}
+.att-sel-BO{background-color:#FAEEDA;color:#BA7517;border-color:#EF9F27}
+.att-sel-XX{background-color:#FCEBEB;color:#A32D2D;border-color:#F09595}
+.att-sel-NN{background-color:#F1EFE8;color:#5F5E5A;border-color:#B4B2A9}
+.att-sel:disabled{opacity:0.6;cursor:not-allowed}
+.team-t1{background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.team-t2{background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.team-t3{background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.team-t4{background:#FAECE7;color:#712B13;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.g-m{font-size:10px;padding:1px 6px;border-radius:10px;background:#E6F1FB;color:#185FA5}
+.g-f{font-size:10px;padding:1px 6px;border-radius:10px;background:#FBEAF0;color:#72243E}
+.gender-sel{font-size:11px;padding:3px 6px;border-radius:20px;border:1px solid var(--border);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background:#fff;color:#1a1a1a;width:62px;text-align:center}
+.gender-남{background:#E6F1FB;color:#185FA5;border-color:#85B7EB}
+.gender-여{background:#FBEAF0;color:#72243E;border-color:#F4C0D1}
+.gender-N{background:#F1EFE8;color:#888;border-color:#D3D1C7}
+.s-new{font-size:10px;padding:1px 6px;border-radius:10px;background:#E1F5EE;color:#3B6D11;font-weight:600;margin-left:4px}
+.s-ret{font-size:10px;padding:1px 6px;border-radius:10px;background:#FCEBEB;color:#A32D2D;font-weight:600;margin-left:4px}
+.sec-hd{background:var(--gray-l);padding:8px 14px;border-radius:8px;margin:10px 0 4px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.sec-hd span{font-size:13px;font-weight:600}
+.sec-pills{display:flex;gap:6px}
+.pill{font-size:11px;padding:2px 8px;border-radius:20px}
+.pill-ab{background:#EAF3DE;color:#3B6D11}
+.pill-ao{background:#E6F1FB;color:#185FA5}
+.pill-bo{background:#FAEEDA;color:#BA7517}
+.pill-xx{background:#FCEBEB;color:#A32D2D}
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal h2{font-size:17px;font-weight:600;margin-bottom:4px}
+.modal .desc{font-size:13px;color:var(--gray);margin-bottom:20px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;color:var(--gray);margin-bottom:4px}
+.form-row input,.form-row select,.form-row textarea{width:100%;height:36px;border:1px solid var(--border);border-radius:8px;font-size:13px;padding:0 12px;outline:none;background:#fff;color:#1a1a1a}
+.form-row input:focus,.form-row select:focus{border-color:var(--purple-m)}
+.form-row textarea{height:70px;padding:8px 12px;resize:none}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn-cancel{font-size:13px;padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--gray);cursor:pointer}
+.btn-save{font-size:13px;padding:8px 18px;border-radius:8px;border:none;background:var(--purple);color:#fff;cursor:pointer;font-weight:600}
+.btn-save:hover{background:#433b9e}
+.pw-input{display:flex;gap:8px}
+.pw-input input{flex:1}
+.hint{font-size:11px;color:#aaa;padding:8px 10px;background:var(--gray-l);border-radius:6px;margin-bottom:12px}
+.admin-bar{background:var(--purple-l);border:1px solid #AFA9EC;border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.admin-bar span{font-size:12px;color:var(--purple);font-weight:600}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:4px}
+.team-card{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.team-card-hd{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.team-card-hd h3{font-size:14px;font-weight:600}
+.team-card-hd .cnt{font-size:12px;color:var(--gray)}
+.team-card-body{padding:0}
+.team-member{padding:8px 16px;border-top:1px solid #f0ede6;display:flex;flex-direction:column;gap:3px;font-size:13px}
+.team-member:hover{background:#fdfcfb}
+.team-member .nm{flex:1}
+.tc1{border-top:3px solid #7F77DD}
+.tc2{border-top:3px solid #1D9E75}
+.tc3{border-top:3px solid #EF9F27}
+.tc4{border-top:3px solid #D85A30}
+.empty{text-align:center;padding:40px;color:#aaa;font-size:13px}
+
+/* ── 직원 선택 모달 ── */
+.name-select-modal{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.name-select-modal h2{font-size:16px;font-weight:700;margin-bottom:6px}
+.name-select-modal p{font-size:13px;color:var(--gray);margin-bottom:16px}
+.name-search{width:100%;height:38px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;padding:0 12px;outline:none;margin-bottom:10px;box-sizing:border-box}
+.name-search:focus{border-color:var(--purple-m)}
+.name-list{max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px}
+.name-item{padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0ede6;display:flex;align-items:center;justify-content:space-between}
+.name-item:last-child{border-bottom:none}
+.name-item:hover{background:var(--purple-l)}
+.name-item.selected{background:var(--purple-l);font-weight:600;color:var(--purple)}
+.name-item .ni-sub{font-size:11px;color:#aaa}
+.my-badge{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--purple);color:#fff;margin-left:6px}
+
+/* ── 동기화 배지 ── */
+#syncBadge{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid;margin-right:8px;white-space:nowrap;cursor:pointer}
+#syncBadge:hover{opacity:.8}
+
+@media(max-width:700px){.main{padding:12px}table{font-size:12px}th,td{padding:7px 8px}}
+</style>
+</head>
+<body>
+
+<!-- ═══ 접속 화면 (직원 + 관리자 통합) ═══ -->
+<div id="accessLock" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#EDE9FE;z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:36px 40px;width:90%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="font-size:36px;margin-bottom:12px">🏃</div>
+    <div style="font-size:16px;font-weight:700;color:#1e1b4b;margin-bottom:4px">2026 아이패밀리SC 체육대회</div>
+    <div style="font-size:13px;color:#888;margin-bottom:24px">비밀번호를 입력해 주세요</div>
+
+    <!-- 직원용 -->
+    <div id="loginEmployee" style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:600;color:#534AB7;margin-bottom:8px;text-align:left">👤 직원 입장</div>
+      <div style="display:flex;gap:8px">
+        <input id="accessPwInput" type="password" placeholder="직원 비밀번호"
+          style="flex:1;box-sizing:border-box;border:1.5px solid #ddd;border-radius:8px;padding:10px 12px;font-size:13px;outline:none;letter-spacing:3px"
+          onkeydown="if(event.key==='Enter') doCheckAccess()">
+        <button onclick="doCheckAccess()" style="padding:0 16px;border:none;border-radius:8px;background:#534AB7;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">입장</button>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #f0ede6;margin:16px 0"></div>
+
+    <!-- 관리자용 -->
+    <div id="loginAdmin">
+      <div style="font-size:12px;font-weight:600;color:#059669;margin-bottom:8px;text-align:left">🛡️ 관리자 입장</div>
+      <div style="display:flex;gap:8px">
+        <input id="adminPwInput" type="password" placeholder="관리자 비밀번호"
+          style="flex:1;box-sizing:border-box;border:1.5px solid #ddd;border-radius:8px;padding:10px 12px;font-size:13px;outline:none;letter-spacing:3px"
+          onkeydown="if(event.key==='Enter') doCheckAdmin()">
+        <button onclick="doCheckAdmin()" style="padding:0 16px;border:none;border-radius:8px;background:#059669;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">입장</button>
+      </div>
+    </div>
+
+    <div id="accessErr" style="font-size:12px;color:#e53e3e;margin-top:10px;min-height:18px"></div>
+  </div>
+</div>
+
+<!-- ═══ 이름 선택 모달 (직원용) ═══ -->
+<div id="nameSelectOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px">
+  <div class="name-select-modal">
+    <div style="font-size:24px;margin-bottom:10px">👋</div>
+    <h2>본인 이름을 선택해주세요</h2>
+    <p>이름을 선택하면 참석 여부를 입력할 수 있어요.</p>
+    <input type="text" class="name-search" id="nameSearchInput" placeholder="이름 검색..." oninput="filterNameList()">
+    <div class="name-list" id="nameListEl"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+      <button id="nameSelectConfirmBtn" onclick="confirmNameSelect()" disabled
+        style="padding:9px 22px;border-radius:8px;border:none;background:#534AB7;color:#fff;font-size:13px;font-weight:600;cursor:pointer;opacity:0.4">선택 완료</button>
+    </div>
+    <p style="font-size:11px;color:#aaa;margin-top:8px;text-align:center">이름이 없거나 잘못된 경우 HR에 문의해주세요</p>
+  </div>
+</div>
+
+<div class="app-header">
+  <div style="display:flex;align-items:center;gap:6px">
+    <strong style="font-size:15px">2026 아이패밀리SC 체육대회</strong>
+    <span id="myNameBadge" style="display:none;font-size:12px;background:#EEEDFE;color:#534AB7;padding:2px 10px;border-radius:20px;font-weight:600"></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span id="syncBadge" onclick="loadFromSheet()" title="클릭하면 새로고침"></span>
+    <button class="admin-btn" id="adminToggleBtn" onclick="toggleAdminPrompt()">🔒 관리자</button>
+  </div>
+</div>
+
+<!-- 공지사항 -->
+<div id="noticeBar" style="background:#fffbeb;border-top:2px solid #fde68a;border-bottom:2px solid #fde68a;padding:10px 20px;display:flex;align-items:center;gap:10px;min-height:40px">
+  <span style="font-size:13px;font-weight:700;color:#b45309;white-space:nowrap">📢 공지</span>
+  <div style="width:1px;background:#fcd34d;align-self:stretch;flex-shrink:0"></div>
+  <div id="noticeText" onclick="if(adminMode)editNotice()" style="font-size:13px;color:#aaa;flex:1;cursor:default;line-height:1.5;white-space:pre-wrap">공지사항을 입력하세요 (관리자만 수정 가능)</div>
+  <span id="noticeEditBtn" style="display:none;font-size:11px;color:#b45309;cursor:pointer;white-space:nowrap;padding:3px 10px;border:1px solid #fcd34d;border-radius:4px;background:#fff" onclick="editNotice()">✏️ 수정</span>
+</div>
+
+<!-- 공지 편집 모달 -->
+<div id="noticeModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:700;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:500px">
+    <h3 style="margin:0 0 12px;font-size:15px">📢 공지사항 수정</h3>
+    <textarea id="noticeInput" rows="4" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:6px;padding:10px;font-size:13px;resize:vertical;font-family:inherit" placeholder="공지사항을 입력하세요..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button onclick="saveNotice()" style="padding:7px 20px;border-radius:6px;border:none;background:#7c3aed;color:#fff;font-size:13px;cursor:pointer;font-weight:600">저장</button>
+      <button onclick="document.getElementById('noticeModal').style.display='none'" style="padding:7px 16px;border-radius:6px;border:1px solid #ddd;background:#f9f9f9;font-size:13px;cursor:pointer">취소</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="admin-bar" id="adminBar" style="display:none">
+    <span>🛡️ 관리자 모드</span>
+    <button class="btn" onclick="showAddModal()">➕ 입사자 등록</button>
+    <button class="btn" onclick="showTeamAssignModal()">🎲 팀 배정</button>
+    <button class="btn" onclick="loadFromSheet()">🔄 시트 새로고침</button>
+    <button class="btn danger" onclick="adminLogout()">나가기</button>
+  </div>
+
+  <!-- 직원 안내 배너 -->
+  <div id="employeeBanner" style="display:none;background:#E1F5EE;border:1px solid #5DCAA5;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="font-size:13px;color:#085041">✅ <strong id="bannerName"></strong>님으로 로그인 됐어요. 본인 행의 참석 여부를 선택해주세요!</span>
+    <button onclick="changeMyName()" style="font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid #5DCAA5;background:#fff;color:#085041;cursor:pointer;margin-left:auto">이름 변경</button>
+  </div>
+
+  <div class="stats" id="statsGrid"></div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="이름 검색..." oninput="render()">
+    <select id="bonbuFilter" onchange="render()"><option value="">전체 본부</option></select>
+    <select id="statusFilter" onchange="render()">
+      <option value="재직">재직 중</option>
+      <option value="all">전체 (퇴사 포함)</option>
+    </select>
+    <select id="attFilter" onchange="render()">
+      <option value="">참석 현황 전체</option>
+      <option value="AB">체육대회 + 회식 참석</option>
+      <option value="AO">체육대회만 참석</option>
+      <option value="BO">회식만 참석</option>
+      <option value="XX">미참석</option>
+      <option value="NN">미정</option>
+    </select>
+    <select id="teamFilter" onchange="render()">
+      <option value="">팀 배정 전체</option>
+      <option value="T1">1팀</option><option value="T2">2팀</option>
+      <option value="T3">3팀</option><option value="T4">4팀</option>
+      <option value="none">미배정</option>
+    </select>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="setTab('list',this)">전체 명단</div>
+    <div class="tab" onclick="setTab('dept',this)">본부별</div>
+    <div class="tab" onclick="setTab('absent',this)">미정/불참 <span class="tab-badge" id="abBadge">0</span></div>
+    <div class="tab" id="teamViewTab" onclick="setTab('teamview',this)">🏃 팀 배정 확인</div>
+    <div class="tab" id="seatViewTab" onclick="setTab('seatview',this)">🍽️ 자리배치 확인</div>
+    <div class="tab" id="retiredTab" style="display:none" onclick="setTab('retired',this)">퇴사자 <span class="tab-badge" id="retBadge">0</span></div>
+    <div class="tab" id="orgTab" style="display:none" onclick="setTab('org',this)">조직도</div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<!-- Admin login - iframe 호환 인라인 방식 -->
+<div id="adminLoginModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:28px;width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <h2 style="font-size:16px;font-weight:700;margin-bottom:6px">🔒 관리자 로그인</h2>
+    <p style="font-size:13px;color:#888;margin-bottom:18px">관리자 비밀번호를 입력해주세요.</p>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input type="password" id="pwInput" placeholder="비밀번호 입력"
+        style="flex:1;height:38px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;padding:0 12px;outline:none"
+        onkeydown="if(event.key==='Enter')doAdminLogin()">
+      <button onclick="doAdminLogin()" style="padding:0 18px;border:none;border-radius:8px;background:#534AB7;color:#fff;font-size:13px;font-weight:600;cursor:pointer">로그인</button>
+    </div>
+    <p id="pwErr" style="color:#A32D2D;font-size:12px;min-height:18px"></p>
+    <div style="text-align:right;margin-top:10px">
+      <button onclick="hideAdminModal()" style="font-size:13px;padding:7px 16px;border-radius:8px;border:1px solid #ddd;background:#f9f9f9;cursor:pointer">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add person -->
+<div class="overlay" id="addModal" style="display:none">
+  <div class="modal">
+    <h2>입사자 등록</h2>
+    <p class="desc">새 구성원을 등록합니다.</p>
+    <div class="form-row"><label>이름 *</label><input type="text" id="f-name" placeholder="홍길동"></div>
+    <div class="form-row"><label>직급</label>
+      <select id="f-rank"><option>사원</option><option>대리</option><option>선임</option><option>과장</option><option>차장</option><option>부장</option><option>팀장</option><option>파트장</option><option>수석팀장</option><option>센터장</option><option>부문장</option></select>
+    </div>
+    <div class="form-row"><label>본부</label>
+      <select id="f-bonbu"><option>웨딩사업본부</option><option>브랜드본부</option><option>경영기획본부</option><option>기술개발본부</option><option>임원진</option></select>
+    </div>
+    <div class="form-row"><label>부문/팀</label><input type="text" id="f-boomun" placeholder="예: 마케팅부문"></div>
+    <div class="form-row"><label>팀</label><input type="text" id="f-team" placeholder="예: 콘텐츠팀"></div>
+    <div class="form-row"><label>파트</label><input type="text" id="f-part" placeholder="예: 기획1파트"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="hideModal('addModal')">취소</button>
+      <button class="btn-save" onclick="addPerson()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit person -->
+<div class="overlay" id="editModal" style="display:none">
+  <div class="modal">
+    <h2>구성원 정보 수정</h2>
+    <p class="desc">정보를 수정합니다.</p>
+    <input type="hidden" id="e-id">
+    <div class="form-row"><label>이름</label><input type="text" id="e-name"></div>
+    <div class="form-row"><label>직급</label>
+      <select id="e-rank"><option>사원</option><option>대리</option><option>선임</option><option>과장</option><option>차장</option><option>부장</option><option>팀장</option><option>파트장</option><option>수석팀장</option><option>센터장</option><option>부문장</option><option>대표이사</option><option>부사장</option><option>전무이사</option></select>
+    </div>
+    <div class="form-row"><label>본부</label>
+      <select id="e-bonbu"><option>웨딩사업본부</option><option>브랜드본부</option><option>경영기획본부</option><option>기술개발본부</option><option>임원진</option></select>
+    </div>
+    <div class="form-row"><label>부문/팀</label><input type="text" id="e-boomun"></div>
+    <div class="form-row"><label>팀</label><input type="text" id="e-team"></div>
+    <div class="form-row"><label>파트</label><input type="text" id="e-part"></div>
+    <div class="form-row"><label>상태</label>
+      <select id="e-status"><option>재직</option><option>신규</option><option>퇴사</option></select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="hideModal('editModal')">취소</button>
+      <button class="btn-save" onclick="savePerson()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Team Assign Modal -->
+<div class="overlay" id="teamModal" style="display:none">
+  <div class="modal" style="max-width:560px">
+    <h2>🎲 체육대회 팀 배정</h2>
+    <p class="desc">같은 팀(부문/파트) 구성원은 찢어지지 않게 랜덤 배정됩니다. 최대 70명/팀.</p>
+    <div class="hint">재직 인원: <strong id="assignTotal">0</strong>명 → 4팀으로 배정</div>
+    <div class="form-row">
+      <label>배정 대상</label>
+      <select id="assignTarget">
+        <option value="all">전체 재직자</option>
+        <option value="AO">체육대회 참석자만 (AB+AO)</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="hideModal('teamModal')">취소</button>
+      <button class="btn-cancel" style="color:var(--red);border-color:#F09595" onclick="resetTeamAssign()">🔄 초기화</button>
+      <button class="btn-save" onclick="doTeamAssign()">🎲 랜덤 배정</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// ☁️ 구글 시트 실시간 연동 설정
+// ───────────────────────────────────────────────────────────────
+// Apps Script 배포 후 아래 URL을 교체하세요
+// (체육대회_GoogleAppsScript.gs 파일 참고)
+// ═══════════════════════════════════════════════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyslbaUpTBeho8uKtUqwkRq1NwNYZiGraWZg8KiV_xUL61nZPnKRjlAAdNDUkNpwp6Y/exec';
+
+let syncEnabled = GAS_URL !== 'YOUR_APPS_SCRIPT_URL_HERE';
+let _saveTimer = null;
+
+function updateSyncBadge(status, msg) {
+  const badge = document.getElementById('syncBadge');
+  if (!badge) return;
+  const styles = {
+    loading: 'background:#FEF3C7;color:#92400E;border-color:#FCD34D',
+    ok:      'background:#D1FAE5;color:#065F46;border-color:#6EE7B7',
+    error:   'background:#FEE2E2;color:#991B1B;border-color:#FCA5A5',
+    idle:    'background:#F3F4F6;color:#6B7280;border-color:#D1D5DB',
+  };
+  badge.style.cssText = 'font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid;margin-right:8px;white-space:nowrap;cursor:pointer;' + (styles[status] || styles.idle);
+  badge.title = '클릭하면 새로고침';
+  badge.textContent = msg || {loading:'⏳ 저장 중…', ok:'✅ 저장됨', error:'⚠️ 오프라인', idle:'☁️ URL 설정 필요'}[status];
+}
+
+async function loadFromSheet() {
+  if (!syncEnabled) { updateSyncBadge('idle'); return; }
+  updateSyncBadge('loading', '⏳ 불러오는 중…');
+  try {
+    const data = await gasRequest({ action: 'get' });
+    if (data.error) throw new Error(data.error);
+    let n = 0;
+    Object.entries(data).forEach(([idStr, val]) => {
+      const p = people.find(x => x.id === parseInt(idStr));
+      if (p) {
+        if (val.att)    p.att    = val.att;
+        if (val.gender) p.gender = val.gender || null;
+        n++;
+      }
+    });
+    updateSyncBadge('ok', '✅ ' + n + '명 불러옴');
+    render();
+  } catch (err) {
+    updateSyncBadge('error', '⚠️ 불러오기 실패 (클릭으로 재시도)');
+    console.error('loadFromSheet:', err);
+  }
+}
+
+async function saveToSheet(id, att, gender) {
+  if (!syncEnabled) return;
+  updateSyncBadge('loading');
+  try {
+    const data = await gasRequest({ action: 'set', id, att, gender: gender || '' });
+    if (data.success) updateSyncBadge('ok');
+    else throw new Error(data.error);
+  } catch (err) {
+    updateSyncBadge('error', '⚠️ 저장 실패');
+    console.error('saveToSheet:', err);
+  }
+}
+
+// JSONP 방식으로 CORS 우회
+function gasRequest(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      reject(new Error('timeout'));
+    }, 10000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      document.getElementById('_gas_script_' + cbName)?.remove();
+      resolve(data);
+    };
+
+    const qs = Object.entries({ ...params, callback: cbName, t: Date.now() })
+      .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+      .join('&');
+
+    const script = document.createElement('script');
+    script.id = '_gas_script_' + cbName;
+    script.src = GAS_URL + '?' + qs;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      // fallback: 일반 fetch 시도
+      fetch(GAS_URL + '?' + qs.replace('&callback=' + encodeURIComponent(cbName), ''))
+        .then(r => r.json()).then(resolve).catch(reject);
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// ─── 내 이름 관리 ───
+let myPersonId = null; // null = 미선택, -1 = 관리자
+
+function getMyPersonId() {
+  try { return parseInt(localStorage.getItem('sports2026_myId') || '0') || null; } catch(e) { return null; }
+}
+function setMyPersonId(id) {
+  myPersonId = id;
+  try { if(id) localStorage.setItem('sports2026_myId', id); else localStorage.removeItem('sports2026_myId'); } catch(e) {}
+}
+
+// 이름 선택 모달
+let selectedNameId = null;
+function showNameSelect() {
+  selectedNameId = null;
+  document.getElementById('nameSearchInput').value = '';
+  filterNameList();
+  const btn = document.getElementById('nameSelectConfirmBtn');
+  btn.disabled = true; btn.style.opacity = '0.4';
+  document.getElementById('nameSelectOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('nameSearchInput').focus(), 100);
+}
+
+function filterNameList() {
+  const q = document.getElementById('nameSearchInput').value.trim().toLowerCase();
+  const list = document.getElementById('nameListEl');
+  const active = people.filter(p => p.status !== '퇴사');
+  const filtered = q ? active.filter(p => p.name.toLowerCase().includes(q) ||
+    (p.boomun||'').includes(q) || (p.team||'').includes(q) || (p.part||'').includes(q)) : active;
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:#aaa;font-size:13px">검색 결과가 없어요</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.slice(0, 50).map(p => {
+    const org = [p.boomun, p.team, p.part].filter(Boolean).join(' › ');
+    const isSel = selectedNameId === p.id;
+    return `<div class="name-item ${isSel?'selected':''}" onclick="selectNameItem(${p.id}, this)">
+      <div>
+        <div style="font-weight:500">${p.name} <span style="font-size:11px;color:#aaa">${p.rank}</span></div>
+        <div class="ni-sub">${org || p.bonbu}</div>
+      </div>
+      ${isSel ? '<span style="color:var(--purple);font-size:16px">✓</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectNameItem(id, el) {
+  selectedNameId = id;
+  document.querySelectorAll('.name-item').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+  el.innerHTML = el.innerHTML.replace(/<span style="color.*?<\/span>/, '') + '<span style="color:var(--purple);font-size:16px">✓</span>';
+  const btn = document.getElementById('nameSelectConfirmBtn');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+function confirmNameSelect() {
+  if (!selectedNameId) return;
+  setMyPersonId(selectedNameId);
+  document.getElementById('nameSelectOverlay').style.display = 'none';
+  updateMyUI();
+  render();
+}
+
+function changeMyName() {
+  setMyPersonId(null);
+  showNameSelect();
+}
+
+function updateMyUI() {
+  const p = myPersonId ? people.find(x => x.id === myPersonId) : null;
+  const badge = document.getElementById('myNameBadge');
+  const banner = document.getElementById('employeeBanner');
+  const bannerName = document.getElementById('bannerName');
+
+  if (adminMode) {
+    badge.style.display = 'none';
+    banner.style.display = 'none';
+    return;
+  }
+
+  if (p) {
+    badge.textContent = p.name + '님';
+    badge.style.display = '';
+    bannerName.textContent = p.name;
+    banner.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+    banner.style.display = 'none';
+  }
+}
+
+// ─── 기본 데이터 ───
+const ADMIN_PW = 'PC2026';
+const ACCESS_PW = 'IFM2026';
+
+function doCheckAccess(){
+  const pw = document.getElementById('accessPwInput').value;
+  const err = document.getElementById('accessErr');
+  if(pw === ACCESS_PW){
+    document.getElementById('accessLock').style.display = 'none';
+    document.getElementById('accessPwInput').value = '';
+    const savedId = getMyPersonId();
+    if(savedId){ setMyPersonId(savedId); updateMyUI(); } else { showNameSelect(); }
+    if(syncEnabled) loadFromSheet();
+  } else {
+    err.textContent = '비밀번호가 올바르지 않습니다';
+    document.getElementById('accessPwInput').value = '';
+    setTimeout(()=>{ err.textContent=''; }, 2000);
+  }
+}
+
+function doCheckAdmin(){
+  const pw = document.getElementById('adminPwInput').value;
+  const err = document.getElementById('accessErr');
+  if(pw === ADMIN_PW){
+    document.getElementById('accessLock').style.display = 'none';
+    document.getElementById('adminPwInput').value = '';
+    // 관리자 모드 바로 활성화
+    adminMode = true;
+    myPersonId = -1;
+    document.getElementById('adminBar').style.display = 'flex';
+    document.getElementById('adminToggleBtn').classList.add('active');
+    document.getElementById('adminToggleBtn').textContent = '🛡️ 관리자';
+    document.getElementById('retiredTab').style.display = '';
+    document.getElementById('orgTab').style.display = '';
+    updateMyUI();
+    if(syncEnabled) loadFromSheet();
+    render();
+  } else {
+    err.textContent = '관리자 비밀번호가 올바르지 않습니다';
+    document.getElementById('adminPwInput').value = '';
+    setTimeout(()=>{ err.textContent=''; }, 2000);
+  }
+}
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{ const el=document.getElementById('accessPwInput'); if(el) el.focus(); }, 100);
+});
+
+let adminMode = false;
+let currentTab = 'list';
+let nextId = 269;
+
+const ATT_OPTS = [
+  {k:'AB', label:'체육대회 + 회식 참석'},
+  {k:'AO', label:'체육대회만 참석 ( 회식 X )'},
+  {k:'BO', label:'회식만 참석 ( 체육대회 X )'},
+  {k:'XX', label:'체육대회 + 회식 미참석'},
+  {k:'NN', label:'미정'},
+];
+const TEAM_LABEL = {T1:'1팀',T2:'2팀',T3:'3팀',T4:'4팀'};
+
+let people = [
+  {id:1,name:"김영주",rank:"부문장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:2,name:"최지현",rank:"파트장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:3,name:"유옥경",rank:"부장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:4,name:"김윤미",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:5,name:"김지영E",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:6,name:"이희영",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:7,name:"정다예",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:8,name:"김선영",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:9,name:"김근영",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:10,name:"박제은",rank:"파트장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:11,name:"김남경",rank:"차장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:12,name:"이민지",rank:"과장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:13,name:"정화영",rank:"대리",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:14,name:"김지민",rank:"대리",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:15,name:"이소연",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:16,name:"박지윤B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:17,name:"윤서원",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:18,name:"이경환",rank:"파트장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:19,name:"김은경B",rank:"부장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:20,name:"정빛나",rank:"과장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:21,name:"한지수",rank:"과장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:22,name:"황규철",rank:"과장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:23,name:"서희라",rank:"대리",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:24,name:"박수연B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:25,name:"이효은",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 3파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:26,name:"김현영",rank:"파트장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:27,name:"박가은",rank:"과장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:28,name:"강윤서",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:29,name:"유현주",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:30,name:"이지영B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:31,name:"이소현B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:32,name:"천송은",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 4파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:33,name:"김수민",rank:"파트장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:34,name:"이주연",rank:"부장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:35,name:"김보경",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:36,name:"현지원",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:37,name:"김지영D",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:38,name:"김하늘B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:39,name:"김유정",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"",part:"고객서비스팀 5파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:40,name:"도경재",rank:"파트장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:41,name:"이선례",rank:"과장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:42,name:"김민희B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:43,name:"정주영",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:44,name:"조상아",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:45,name:"김희정B",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:46,name:"류소라",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:47,name:"상원선",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:48,name:"오주해",rank:"사원",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:49,name:"이은경",rank:"부문장",bonbu:"웨딩사업본부",boomun:"서비스부문",team:"서비스통합파트",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:50,name:"신미정",rank:"팀장",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"서비스기획팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:51,name:"김하영",rank:"대리",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"서비스기획팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:52,name:"안진희",rank:"파트장",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"브랜드팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:53,name:"김도연",rank:"대리",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"브랜드팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:54,name:"박윤미",rank:"대리",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"브랜드팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:55,name:"김수현B",rank:"사원",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"브랜드팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:56,name:"현예지",rank:"사원",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"브랜드팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:57,name:"곽예슬",rank:"과장",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"콘텐츠팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:58,name:"박상아",rank:"대리",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"콘텐츠팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:59,name:"이우솔",rank:"사원",bonbu:"웨딩사업본부",boomun:"브랜드부문",team:"콘텐츠팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:60,name:"박윤아",rank:"부문장",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:61,name:"박지연",rank:"수석팀장",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:62,name:"현경희",rank:"팀장",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:63,name:"이채영",rank:"과장",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:64,name:"이나윤",rank:"대리",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:65,name:"김보미",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:66,name:"이윤선",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:67,name:"허예진",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:68,name:"정가경",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:69,name:"박수빈",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:70,name:"남다희",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:71,name:"박상희",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"상품개발팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:72,name:"정민정",rank:"파트장",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:73,name:"김유진B",rank:"대리",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:74,name:"박인선",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:75,name:"윤채원",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:76,name:"이지수",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:77,name:"정은지",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:78,name:"류정경",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:79,name:"김민B",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"디자인파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:80,name:"원정윤",rank:"파트장",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:81,name:"유경인",rank:"선임",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:82,name:"김나윤",rank:"대리",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:83,name:"오수지",rank:"대리",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:84,name:"손연주",rank:"대리",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:85,name:"김민정C",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:86,name:"안유진",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:87,name:"이혜정B",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:88,name:"백선아",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:89,name:"최윤이",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"패키지파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:90,name:"진효진",rank:"선임",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"품질파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:91,name:"김온비",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"품질파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:92,name:"한세정",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"품질파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:93,name:"김명호",rank:"선임",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"구매파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:94,name:"한여름",rank:"사원",bonbu:"브랜드본부",boomun:"상품부문",team:"",part:"구매파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:95,name:"전혜빈",rank:"부문장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:96,name:"정지혜",rank:"파트장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"RDRD스킨케어파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:97,name:"서호연",rank:"차장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"RDRD스킨케어파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:98,name:"곽주은",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"RDRD스킨케어파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:99,name:"김유진",rank:"파트장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:100,name:"백현아",rank:"선임",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:101,name:"김지영",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:102,name:"김보영",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:103,name:"금소은",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:104,name:"김민서",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:105,name:"장민지",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:106,name:"정지현B",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:107,name:"김재이",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:108,name:"이보나",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:109,name:"손동화",rank:"파트장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:110,name:"이다희",rank:"선임",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:111,name:"손홍연",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:112,name:"이병화",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:113,name:"이하림",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:114,name:"이혜수",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:115,name:"김민지B",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:116,name:"정민지",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:117,name:"김유진F",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:118,name:"박시은",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"기획2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:119,name:"김예원",rank:"파트장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:120,name:"허서영",rank:"선임",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:121,name:"조지훈",rank:"과장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:122,name:"오주연",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:123,name:"이서영",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:124,name:"김승지",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:125,name:"정지우",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:126,name:"문정인",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:127,name:"김유진D",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠1파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:128,name:"김지유",rank:"선임",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:129,name:"김다희B",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:130,name:"민승주",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:131,name:"방주희",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:132,name:"조희수",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:133,name:"최유진",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:134,name:"박선민",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:135,name:"이예슬C",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"콘텐츠2파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:136,name:"엄보라",rank:"파트장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:137,name:"전효경",rank:"과장",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:138,name:"윤새봄",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:139,name:"김희원B",rank:"대리",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:140,name:"강경민",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:141,name:"이민정",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:142,name:"구주원",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:143,name:"박준희",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:144,name:"이채안",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:145,name:"김도연C",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:146,name:"오정윤",rank:"사원",bonbu:"브랜드본부",boomun:"마케팅부문",team:"",part:"CRM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:147,name:"허지혜",rank:"부문장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:148,name:"백승애",rank:"수석팀장",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:149,name:"양예심",rank:"파트장",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:150,name:"강혜란",rank:"차장",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:151,name:"변경희",rank:"과장",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:152,name:"김예령",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:153,name:"황자유",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:154,name:"방스치",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:155,name:"김진현",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:156,name:"마유양",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"중화권파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:157,name:"이주현B",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"동남아파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:158,name:"길나은",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"동남아파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:159,name:"김채원B",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"동남아파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:160,name:"이지은",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"아시아팀",part:"동남아파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:161,name:"김수빈",rank:"팀장",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:162,name:"안려진",rank:"파트장",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:163,name:"최지아",rank:"선임",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:164,name:"박재성",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:165,name:"정미래",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:166,name:"최민지",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:167,name:"키치세 후우코",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:168,name:"박율리",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:169,name:"박수민",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:170,name:"정지원",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:171,name:"차유미",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:172,name:"카츠키 아야카",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"일본팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:173,name:"신민경",rank:"파트장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"미주파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:174,name:"이승경",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"미주파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:175,name:"정지은B",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"미주파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:176,name:"임세현",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"미주파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:177,name:"지소영",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"미주파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:178,name:"노현희",rank:"선임",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"글로벌파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:179,name:"구혜서",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"글로벌파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:180,name:"금보민",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"글로벌파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:181,name:"박재묵",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"글로벌파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:182,name:"간희원",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"글로벌파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:183,name:"김소연",rank:"선임",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"무역파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:184,name:"최상원",rank:"과장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"무역파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:185,name:"이동영",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"무역파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:186,name:"이하경",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"무역파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:187,name:"이채린",rank:"팀장",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:188,name:"정혜진",rank:"선임",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:189,name:"박지수C",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:190,name:"김형찬",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:191,name:"최이준",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:192,name:"가유진",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:193,name:"이정인",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:194,name:"김수인",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:195,name:"박세연",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:196,name:"양예원",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:197,name:"이준형B",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:198,name:"최효경",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:199,name:"구제영",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:200,name:"김세아",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"국내영업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:201,name:"한누리",rank:"파트장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:202,name:"이동윤",rank:"선임",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:203,name:"한지혜",rank:"차장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:204,name:"권희욱",rank:"과장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:205,name:"김유미",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:206,name:"강서원",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:207,name:"최지희",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"SCM파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:208,name:"박세진",rank:"파트장",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"VMD파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:209,name:"정영경",rank:"대리",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"VMD파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:210,name:"송현민",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"VMD파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:211,name:"유연수",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"VMD파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:212,name:"손현아",rank:"사원",bonbu:"브랜드본부",boomun:"영업부문",team:"",part:"VMD파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:213,name:"우수정",rank:"팀장",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:214,name:"지정현",rank:"부장",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:215,name:"허연호",rank:"차장",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:216,name:"박지현",rank:"과장",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:217,name:"신현범",rank:"과장",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:218,name:"이화정",rank:"과장(부산)",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:219,name:"이채민",rank:"대리",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:220,name:"김유진C",rank:"사원",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:221,name:"정은영",rank:"사원",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:222,name:"최서연",rank:"사원(부산)",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:223,name:"양대중",rank:"사원",bonbu:"브랜드본부",boomun:"",team:"리빙사업팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:224,name:"정민정B",rank:"선임",bonbu:"브랜드본부",boomun:"",team:"",part:"PC파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:225,name:"김민송",rank:"사원",bonbu:"브랜드본부",boomun:"",team:"",part:"PC파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:226,name:"공혜원",rank:"사원",bonbu:"브랜드본부",boomun:"",team:"",part:"PC파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:227,name:"박다연",rank:"사원",bonbu:"브랜드본부",boomun:"",team:"",part:"PC파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:228,name:"장세진",rank:"팀장",bonbu:"경영기획본부",boomun:"",team:"인사총무팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:229,name:"원혜연",rank:"차장",bonbu:"경영기획본부",boomun:"",team:"인사총무팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:230,name:"민주영",rank:"대리",bonbu:"경영기획본부",boomun:"",team:"인사총무팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:231,name:"정상기",rank:"대리",bonbu:"경영기획본부",boomun:"",team:"인사총무팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:232,name:"최재완",rank:"사원",bonbu:"경영기획본부",boomun:"",team:"인사총무팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:233,name:"소준용",rank:"사원",bonbu:"경영기획본부",boomun:"",team:"인사총무팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:234,name:"윤경미",rank:"팀장",bonbu:"경영기획본부",boomun:"",team:"재무회계팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:235,name:"김효진",rank:"과장",bonbu:"경영기획본부",boomun:"",team:"재무회계팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:236,name:"배주영",rank:"대리",bonbu:"경영기획본부",boomun:"",team:"재무회계팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:237,name:"김미경",rank:"사원",bonbu:"경영기획본부",boomun:"",team:"재무회계팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:238,name:"구민정",rank:"사원",bonbu:"경영기획본부",boomun:"",team:"재무회계팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:239,name:"최부현",rank:"사원",bonbu:"경영기획본부",boomun:"",team:"재무회계팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:240,name:"조은성",rank:"팀장",bonbu:"경영기획본부",boomun:"",team:"공시&IR팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:241,name:"김은지B",rank:"과장",bonbu:"경영기획본부",boomun:"",team:"공시&IR팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:242,name:"김윤수",rank:"팀장",bonbu:"경영기획본부",boomun:"",team:"대외협력팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:243,name:"문창배",rank:"팀장",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발1팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:244,name:"김보겸",rank:"차장",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발1팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:245,name:"홍승용",rank:"대리",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발1팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:246,name:"박현창",rank:"부장",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발2팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:247,name:"허주영",rank:"과장",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발2팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:248,name:"이규리",rank:"대리",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발2팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:249,name:"장효윤",rank:"사원",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발2팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:250,name:"임재진",rank:"사원",bonbu:"기술개발본부",boomun:"기술연구팀",team:"개발2팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:251,name:"이정훈",rank:"팀장",bonbu:"기술개발본부",boomun:"",team:"기획팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:252,name:"최승희",rank:"대리",bonbu:"기술개발본부",boomun:"",team:"기획팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:253,name:"이보람",rank:"팀장",bonbu:"기술개발본부",boomun:"",team:"디자인팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:254,name:"김민정B",rank:"과장",bonbu:"기술개발본부",boomun:"",team:"디자인팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:255,name:"이수연B",rank:"대리",bonbu:"기술개발본부",boomun:"",team:"디자인팀",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:256,name:"김예은",rank:"파트장",bonbu:"기술개발본부",boomun:"",team:"아이컬러팀",part:"앱서비스 운영파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:257,name:"김다솜",rank:"대리",bonbu:"기술개발본부",boomun:"",team:"아이컬러팀",part:"키오스크 운영파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:258,name:"정벼리",rank:"사원",bonbu:"기술개발본부",boomun:"",team:"아이컬러팀",part:"키오스크 운영파트",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:259,name:"오유석",rank:"센터장",bonbu:"기술개발본부",boomun:"",team:"R&D센터",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:260,name:"손다연",rank:"사원",bonbu:"기술개발본부",boomun:"",team:"R&D센터",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:261,name:"이서영B",rank:"사원",bonbu:"기술개발본부",boomun:"",team:"R&D센터",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:263,name:"김태욱",rank:"대표이사",bonbu:"임원진",boomun:"",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:264,name:"김성현",rank:"대표이사",bonbu:"임원진",boomun:"",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:265,name:"윤현철",rank:"부사장",bonbu:"임원진",boomun:"",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:266,name:"김춘수",rank:"전무이사",bonbu:"임원진",boomun:"",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:267,name:"박현준",rank:"전무이사",bonbu:"임원진",boomun:"",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null},
+  {id:268,name:"박준규",rank:"전무이사",bonbu:"임원진",boomun:"",team:"",part:"",status:"재직",att:"AB",gender:null,sports_team:null}
+];
+
+// ─── HELPERS ───
+function bonbuColor(b){
+  if(b==='웨딩사업본부') return 'b-웨딩';
+  if(b==='브랜드본부') return 'b-브랜드';
+  if(b==='경영기획본부') return 'b-경영';
+  if(b==='기술개발본부') return 'b-기술';
+  return 'b-임원';
+}
+function attInfo(k){ return ATT_OPTS.find(o=>o.k===k)||ATT_OPTS[4]; }
+function statusTag(s){
+  if(s==='신규') return '<span class="s-new">NEW</span>';
+  if(s==='퇴사') return '<span class="s-ret">퇴사</span>';
+  return '';
+}
+function teamBadge(st){
+  if(!st) return '<span style="font-size:11px;color:#aaa">미배정</span>';
+  const cls={T1:'team-t1',T2:'team-t2',T3:'team-t3',T4:'team-t4'}[st]||'';
+  return '<span class="b '+cls+'">'+(TEAM_LABEL[st]||st)+'</span>';
+}
+
+// ─── ATT SELECT (권한 체크 포함) ───
+function attSelectHtml(pid, k) {
+  const isMe = !adminMode && myPersonId === pid;
+  const canEdit = adminMode || isMe;
+  const opts = ATT_OPTS.map(o=>`<option value="${o.k}" ${o.k===k?'selected':''}>${o.label}</option>`).join('');
+  const disabledAttr = canEdit ? '' : 'disabled';
+  return `<select class="att-sel att-sel-${k}" onchange="selectAtt(${pid},this.value)" ${disabledAttr}>${opts}</select>`;
+}
+
+function selectAtt(pid, val) {
+  // 권한 체크
+  if (!adminMode && myPersonId !== pid) return;
+  const p = people.find(x=>x.id===pid);
+  if (!p) return;
+  p.att = val;
+  updateStats();
+  // select 색상 업데이트
+  const sel = document.querySelector(`select[onchange="selectAtt(${pid},this.value)"]`);
+  if (sel) sel.className = 'att-sel att-sel-' + val;
+  // 구글 시트에 저장
+  saveToSheet(pid, val, p.gender || '');
+}
+
+function setGender(pid, val) {
+  const p = people.find(x=>x.id===pid); if(!p) return;
+  p.gender = val || null;
+  const sel = document.querySelector(`select[onchange="setGender(${pid},this.value)"]`);
+  if(sel) sel.className = `gender-sel gender-${val||'N'}`;
+  saveToSheet(pid, p.att||'NN', val);
+}
+
+// ─── FILTER ───
+function getFiltered(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const bf = document.getElementById('bonbuFilter').value;
+  const sf = document.getElementById('statusFilter').value;
+  const af = document.getElementById('attFilter').value;
+  const tf = document.getElementById('teamFilter').value;
+  return people.filter(p=>{
+    if(sf==='재직' && p.status==='퇴사') return false;
+    if(q && !p.name.toLowerCase().includes(q) && !(p.boomun||'').includes(q) && !(p.team||'').includes(q)) return false;
+    if(bf && p.bonbu!==bf) return false;
+    if(af && p.att!==af) return false;
+    if(tf==='none' && p.sports_team) return false;
+    if(tf && tf!=='none' && p.sports_team!==tf) return false;
+    return true;
+  });
+}
+
+// ─── STATS ───
+function updateStats(){
+  const active = people.filter(p=>p.status!=='퇴사');
+  const ab = active.filter(p=>p.att==='AB').length;
+  const ao = active.filter(p=>p.att==='AO').length;
+  const bo = active.filter(p=>p.att==='BO').length;
+  const xx = active.filter(p=>p.att==='XX').length;
+  const nn = active.filter(p=>p.att==='NN').length;
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat"><div class="s-lbl">전체 재직</div><div class="s-num">${active.length}명</div></div>
+    <div class="stat c-purple"><div class="s-lbl">체육대회 + 회식 참석</div><div class="s-num">${ab}</div><div class="s-sub">${active.length?Math.round(ab/active.length*100):0}%</div></div>
+    <div class="stat c-teal"><div class="s-lbl">체육대회만 참석</div><div class="s-num">${ao}</div></div>
+    <div class="stat c-amber"><div class="s-lbl">회식만 참석</div><div class="s-num">${bo}</div></div>
+    <div class="stat c-red"><div class="s-lbl">미참석</div><div class="s-num">${xx}</div></div>
+    <div class="stat c-coral"><div class="s-lbl">미정</div><div class="s-num">${nn}</div></div>`;
+  document.getElementById('abBadge').textContent = nn + xx;
+  document.getElementById('retBadge').textContent = people.filter(p=>p.status==='퇴사').length;
+}
+
+// ─── RENDER ───
+function render(){
+  const f = getFiltered();
+  let html = '';
+  if(currentTab==='list') html = renderList(f);
+  else if(currentTab==='dept') html = renderDept(f);
+  else if(currentTab==='absent') html = renderAbsent();
+  else if(currentTab==='teamview') html = renderTeamView();
+  else if(currentTab==='seatview') html = renderSeatView();
+  else if(currentTab==='org') html = renderOrg();
+  document.getElementById('content').innerHTML = html;
+  updateStats();
+}
+
+function renderList(f){
+  if(!f.length) return '<div class="empty">검색 결과가 없습니다.</div>';
+  const adminTh = adminMode ? '<th>수정</th>' : '';
+  const rows = f.map(p=>{
+    const retired = p.status==='퇴사' ? 'retired' : '';
+    const isMe = !adminMode && myPersonId === p.id;
+    const myRowCls = isMe ? ' my-row' : '';
+    const myTag = isMe ? '<span class="my-badge">나</span>' : '';
+    const gBadge = adminMode
+      ? `<select class="gender-sel gender-${p.gender||'N'}" onchange="setGender(${p.id},this.value)">${['','남','여'].map(g=>`<option value="${g}" ${(p.gender||'')=== g?'selected':''}>${g||'미설정'}</option>`).join('')}</select>`
+      : (p.gender==='남'?'<span class="g-m">남</span>':p.gender==='여'?'<span class="g-f">여</span>':'');
+    const adminTd = adminMode
+      ? `<td><button class="btn" style="font-size:11px;padding:3px 10px" onclick="showEditModal(${p.id})">수정</button></td>`
+      : '';
+    return `<tr class="${retired}${myRowCls}">
+      <td>${p.name}${myTag}${statusTag(p.status)}</td>
+      <td style="color:#5F5E5A;font-size:12px">${p.rank||'-'}</td>
+      <td><span class="b ${bonbuColor(p.bonbu)}">${p.bonbu}</span></td>
+      <td style="color:#5F5E5A;font-size:12px">${p.boomun||'-'}</td>
+      <td style="color:#5F5E5A;font-size:12px">${p.team||'-'}</td>
+      <td style="color:#5F5E5A;font-size:12px">${p.part||'-'}</td>
+      <td>${attSelectHtml(p.id, p.att||'NN')}</td>
+      <td>${teamBadge(p.sports_team)}</td>
+      <td>${gBadge}</td>
+      ${adminTd}
+    </tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>이름</th><th>직급</th><th>본부</th><th>부문</th><th>팀</th><th>파트</th><th>참석 여부</th><th>팀배정</th><th>성별</th>${adminTh}</tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderDept(f){
+  const bonbus = [...new Set(f.map(p=>p.bonbu))];
+  return bonbus.map(b=>{
+    const bp = f.filter(p=>p.bonbu===b);
+    const ab = bp.filter(p=>p.att==='AB').length;
+    const ao = bp.filter(p=>p.att==='AO').length;
+    const bo = bp.filter(p=>p.att==='BO').length;
+    const xx = bp.filter(p=>p.att==='XX').length;
+    const rows = bp.map(p=>`<tr>
+      <td>${p.name}${statusTag(p.status)}</td>
+      <td style="font-size:12px;color:#5F5E5A">${[p.boomun,p.team,p.part].filter(Boolean).join(' / ')}</td>
+      <td>${attSelectHtml(p.id, p.att||'NN')}</td>
+      <td>${teamBadge(p.sports_team)}</td>
+    </tr>`).join('');
+    return `<div class="sec-hd">
+      <span><span class="b ${bonbuColor(b)}" style="margin-right:8px">${b}</span>${bp.length}명</span>
+      <div class="sec-pills">
+        <span class="pill pill-ab">체육+회식 ${ab}</span>
+        <span class="pill pill-ao">체육 ${ao}</span>
+        <span class="pill pill-bo">회식 ${bo}</span>
+        <span class="pill pill-xx">미참석 ${xx}</span>
+      </div>
+    </div>
+    <div class="tbl-wrap" style="margin-bottom:12px"><table>
+      <thead><tr><th>이름</th><th>소속</th><th>참석</th><th>팀배정</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }).join('');
+}
+
+function renderAbsent(){
+  const pending = people.filter(p=>p.status!=='퇴사'&&(p.att==='NN'||p.att==='XX'));
+  if(!pending.length) return '<div class="empty" style="color:var(--green)">🎉 모든 구성원이 응답 완료!</div>';
+  const rows = pending.map(p=>`<tr>
+    <td>${p.name}</td>
+    <td><span class="b ${bonbuColor(p.bonbu)}">${p.bonbu}</span></td>
+    <td style="font-size:12px;color:#5F5E5A">${p.boomun||p.team||'-'}</td>
+    <td>${attSelectHtml(p.id, p.att||'NN')}</td>
+  </tr>`).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>이름</th><th>본부</th><th>부문/팀</th><th>참석 여부</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderRetired(){
+  const ret = people.filter(p=>p.status==='퇴사');
+  if(!ret.length) return '<div class="empty">퇴사 처리된 인원이 없습니다.</div>';
+  const rows = ret.map(p=>`<tr class="retired">
+    <td>${p.name} <span class="s-ret">퇴사</span></td>
+    <td><span class="b ${bonbuColor(p.bonbu)}">${p.bonbu}</span></td>
+    <td style="font-size:12px;color:#5F5E5A">${p.boomun||p.team||'-'}</td>
+    <td><button class="btn restore" onclick="restorePerson(${p.id})">↩ 복원</button></td>
+  </tr>`).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>이름</th><th>본부</th><th>소속</th><th>복원</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+let teamConfirmed = false;
+let teamSnapshot = null;
+
+function renderTeamView(){
+  if(adminMode) return renderTeamsAdmin();
+  if(!teamConfirmed||!teamSnapshot) return `<div style="padding:60px;text-align:center;color:#aaa">
+    <div style="font-size:48px;margin-bottom:16px">🏃</div>
+    <div style="font-size:16px;font-weight:600;color:#666;margin-bottom:8px">팀 배정이 아직 확정되지 않았습니다</div>
+    <div style="font-size:13px;color:#aaa">관리자가 팀 배정을 확정하면 여기서 확인할 수 있습니다</div>
+  </div>`;
+  const TCOLORS = {T1:'tc1',T2:'tc2',T3:'tc3',T4:'tc4'};
+  let html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span style="font-size:16px;font-weight:700">🏃 팀 배정 확인</span><span style="font-size:12px;color:#059669;background:#d1fae5;padding:3px 10px;border-radius:10px;font-weight:600">✅ 확정됨</span></div>';
+  html += '<div class="team-grid">';
+  ['T1','T2','T3','T4'].forEach(t=>{
+    const members = teamSnapshot.filter(p=>p.sports_team===t);
+    html += `<div class="team-card ${TCOLORS[t]}">
+      <div class="team-card-hd"><h3>${TEAM_LABEL[t]}</h3><span class="cnt">${members.length}명</span></div>
+      <div class="team-card-body">${members.map(p=>`<div class="team-member"><div class="nm">${p.name} <span style="font-size:11px;color:#aaa">${p.rank}</span></div><div style="font-size:10px;color:#aaa">${p.bonbu}</div></div>`).join('')||'<div style="padding:12px 16px;font-size:12px;color:#aaa">배정된 인원 없음</div>'}</div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderTeamsAdmin(){
+  const TCOLORS = {T1:'tc1',T2:'tc2',T3:'tc3',T4:'tc4'};
+  let html = `<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+    <button onclick="confirmTeamAssign()" style="font-size:12px;padding:5px 14px;border-radius:6px;border:none;background:#059669;color:#fff;cursor:pointer;font-weight:600">${teamConfirmed?'✅ 확정됨 (재확정)':'✅ 팀배정 확정'}</button>
+    ${teamConfirmed?'<button onclick="cancelTeamConfirm()" style="font-size:12px;padding:5px 14px;border-radius:6px;border:1px solid #dc2626;background:#fff;color:#dc2626;cursor:pointer">✕ 확정 취소</button>':''}
+  </div>`;
+  html += '<div class="team-grid">';
+  ['T1','T2','T3','T4'].forEach(t=>{
+    const members = people.filter(p=>p.sports_team===t&&p.status!=='퇴사');
+    html += `<div class="team-card ${TCOLORS[t]}">
+      <div class="team-card-hd"><h3>${TEAM_LABEL[t]}</h3><span class="cnt">${members.length}명 / 최대 70명</span></div>
+      <div class="team-card-body">${members.map(p=>`<div class="team-member"><div class="nm">${p.name} <span style="font-size:11px;color:#aaa">${p.rank}</span></div><div style="font-size:10px;color:#aaa;margin-top:2px">${p.bonbu}</div></div>`).join('')||'<div style="padding:12px 16px;font-size:12px;color:#aaa">배정된 인원 없음</div>'}</div>
+    </div>`;
+  });
+  html += '</div>';
+  const unassigned = people.filter(p=>!p.sports_team&&p.status!=='퇴사');
+  if(unassigned.length) html += `<div style="margin-top:14px"><div class="sec-hd"><span>미배정 (${unassigned.length}명)</span></div><div class="tbl-wrap"><div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px">${unassigned.map(p=>`<div style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:12px">${p.name}<span style="color:#aaa;font-size:11px;margin-left:4px">${p.rank}</span></div>`).join('')}</div></div></div>`;
+  return html;
+}
+
+function confirmTeamAssign(){ teamSnapshot=people.map(p=>({...p})); teamConfirmed=true; render(); alert('✅ 팀 배정이 확정되었습니다!'); }
+function cancelTeamConfirm(){ teamConfirmed=false; teamSnapshot=null; render(); }
+
+// ─── TAB ───
+function setTab(tab, el){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// ─── ADMIN ───
+function toggleAdminPrompt(){
+  if(adminMode){ adminLogout(); return; }
+  const modal = document.getElementById('adminLoginModal');
+  modal.style.display = 'flex';
+  setTimeout(()=>{ const el=document.getElementById('pwInput'); if(el){ el.value=''; el.focus(); } }, 100);
+}
+function hideAdminModal(){
+  document.getElementById('adminLoginModal').style.display = 'none';
+  document.getElementById('pwErr').textContent = '';
+}
+function doAdminLogin(){
+  const pw = document.getElementById('pwInput').value;
+  if(pw === ADMIN_PW){
+    adminMode = true;
+    myPersonId = -1;
+    hideAdminModal();
+    document.getElementById('adminBar').style.display = 'flex';
+    document.getElementById('adminToggleBtn').classList.add('active');
+    document.getElementById('adminToggleBtn').textContent = '🛡️ 관리자';
+    document.getElementById('retiredTab').style.display = '';
+    document.getElementById('orgTab').style.display = '';
+    updateMyUI();
+    render();
+  } else {
+    document.getElementById('pwErr').textContent = '비밀번호가 올바르지 않습니다.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+function adminLogout(){
+  adminMode = false;
+  myPersonId = getMyPersonId();
+  document.getElementById('adminBar').style.display = 'none';
+  document.getElementById('adminToggleBtn').classList.remove('active');
+  document.getElementById('adminToggleBtn').textContent = '🔒 관리자';
+  document.getElementById('retiredTab').style.display = 'none';
+  if(currentTab==='retired'||currentTab==='org'||currentTab==='dining'||currentTab==='teams'){ currentTab='list'; document.querySelectorAll('.tab')[0].classList.add('active'); document.querySelectorAll('.tab').forEach((t,i)=>{ if(i>0) t.classList.remove('active'); }); }
+  updateMyUI();
+  render();
+}
+
+// ─── MODALS ───
+function showModal(id){ document.getElementById(id).style.display='flex'; }
+function hideModal(id){ document.getElementById(id).style.display='none'; }
+
+function showAddModal(){ showModal('addModal'); document.getElementById('f-name').value=''; }
+function addPerson(){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ alert('이름을 입력해주세요'); return; }
+  people.push({id:nextId++,name,rank:document.getElementById('f-rank').value,bonbu:document.getElementById('f-bonbu').value,boomun:document.getElementById('f-boomun').value,team:document.getElementById('f-team').value,part:document.getElementById('f-part').value,status:'신규',att:'NN',gender:null,sports_team:null});
+  hideModal('addModal'); render();
+}
+function showEditModal(pid){
+  const p = people.find(x=>x.id===pid); if(!p) return;
+  document.getElementById('e-id').value = pid;
+  document.getElementById('e-name').value = p.name;
+  document.getElementById('e-rank').value = p.rank;
+  document.getElementById('e-bonbu').value = p.bonbu;
+  document.getElementById('e-boomun').value = p.boomun;
+  document.getElementById('e-team').value = p.team;
+  document.getElementById('e-part').value = p.part;
+  document.getElementById('e-status').value = p.status;
+  showModal('editModal');
+}
+function savePerson(){
+  const pid = parseInt(document.getElementById('e-id').value);
+  const p = people.find(x=>x.id===pid); if(!p) return;
+  p.name=document.getElementById('e-name').value; p.rank=document.getElementById('e-rank').value;
+  p.bonbu=document.getElementById('e-bonbu').value; p.boomun=document.getElementById('e-boomun').value;
+  p.team=document.getElementById('e-team').value; p.part=document.getElementById('e-part').value;
+  p.status=document.getElementById('e-status').value;
+  hideModal('editModal'); render();
+}
+function restorePerson(pid){ const p=people.find(x=>x.id===pid); if(p){ p.status='재직'; render(); } }
+
+// ─── TEAM ASSIGN ───
+function showTeamAssignModal(){ document.getElementById('assignTotal').textContent=people.filter(p=>p.status!=='퇴사').length; showModal('teamModal'); }
+function resetTeamAssign(){ people.forEach(p=>p.sports_team=null); hideModal('teamModal'); render(); }
+function doTeamAssign(){
+  const target = document.getElementById('assignTarget').value;
+  let pool = people.filter(p=>p.status!=='퇴사');
+  if(target==='AO') pool = pool.filter(p=>p.att==='AB'||p.att==='AO');
+  if(!pool.length){ alert('배정 대상 인원이 없습니다.'); return; }
+  const groupKey = p => (p.bonbu||'')+'||'+(p.boomun||'')+'||'+(p.team||'')+'||'+(p.part||'');
+  const groups = {};
+  pool.forEach(p=>{ const k=groupKey(p); if(!groups[k]) groups[k]=[]; groups[k].push(p); });
+  const groupArr = Object.values(groups).sort(()=>Math.random()-.5);
+  pool.forEach(p=>p.sports_team=null);
+  const buckets = {T1:[],T2:[],T3:[],T4:[]};
+  const keys = ['T1','T2','T3','T4'];
+  groupArr.forEach(grp=>{
+    const sorted = keys.slice().sort((a,b)=>buckets[a].length-buckets[b].length);
+    for(const t of sorted){ if(buckets[t].length+grp.length<=70){ grp.forEach(p=>{p.sports_team=t; buckets[t].push(p);}); return; } }
+    const t=sorted[0]; grp.forEach(p=>{p.sports_team=t; buckets[t].push(p);});
+  });
+  hideModal('teamModal');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('teamViewTab').classList.add('active');
+  currentTab='teamview'; render();
+}
+
+// ─── 공지 ───
+let noticeContent = '';
+function editNotice(){ document.getElementById('noticeInput').value=noticeContent; document.getElementById('noticeModal').style.display='flex'; setTimeout(()=>document.getElementById('noticeInput').focus(),50); }
+function saveNotice(){
+  noticeContent=document.getElementById('noticeInput').value.trim();
+  const el=document.getElementById('noticeText');
+  el.textContent=noticeContent||'공지사항을 입력하세요 (관리자만 수정 가능)';
+  el.style.color=noticeContent?'#333':'#aaa';
+  document.getElementById('noticeModal').style.display='none';
+}
+function updateNoticeAdmin(){
+  const btn=document.getElementById('noticeEditBtn');
+  const txt=document.getElementById('noticeText');
+  if(adminMode){ btn.style.display=''; txt.style.cursor='pointer'; } else { btn.style.display='none'; txt.style.cursor='default'; }
+}
+
+
+// ─── 자리배치 확인 (관리자: 자리배치 편집 / 일반: 확정 후 공개) ───
+let diningConfirmed = false;
+let diningSnapshot = null;
+let diningLayout = null;
+let dDrag = null;
+let dzHistory = [];
+let _dzSid = 9000;
+function dzNewId(){ return _dzSid++; }
+
+function renderSeatView(){
+  if(adminMode) return renderDining ? renderDining() : '<div class="empty">자리배치 기능은 관리자 모드에서 이용 가능합니다.</div>';
+  if(!diningConfirmed || !diningSnapshot){
+    return '<div style="padding:60px;text-align:center;color:#aaa">'
+      +'<div style="font-size:48px;margin-bottom:16px">🍽️</div>'
+      +'<div style="font-size:16px;font-weight:600;color:#666;margin-bottom:8px">자리배치가 아직 확정되지 않았습니다</div>'
+      +'<div style="font-size:13px;color:#aaa">관리자가 자리배치를 확정하면 여기서 확인할 수 있습니다</div>'
+      +'</div>';
+  }
+  return '<div style="padding:16px"><p style="color:#059669;font-weight:600">✅ 자리배치 확정됨</p></div>';
+}
+
+// ─── 조직도 (관리자 전용) ───
+function renderOrg(){
+  if(!adminMode) return '<div class="empty">조직도는 관리자 모드에서만 볼 수 있습니다.</div>';
+  const active = people.filter(p=>p.status!=='퇴사');
+  const BONBUS = ['임원진','웨딩사업본부','브랜드본부','경영기획본부','기술개발본부'];
+  const BONBU_COLOR = {'웨딩사업본부':'b-웨딩','브랜드본부':'b-브랜드','경영기획본부':'b-경영','기술개발본부':'b-기술','임원진':'b-임원'};
+  let html = '<div style="padding:16px">';
+  for(const bonbu of BONBUS){
+    const members = active.filter(p=>p.bonbu===bonbu);
+    if(!members.length) continue;
+    html += `<div style="margin-bottom:20px">
+      <div style="font-size:14px;font-weight:700;padding:10px 16px;border-radius:8px;background:#f5f4f0;margin-bottom:8px">
+        <span class="b ${BONBU_COLOR[bonbu]}">${bonbu}</span> ${members.length}명
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 8px">
+        ${members.map(p=>{
+          const attCls={AB:'oc-ab',AO:'oc-ao',BO:'oc-bo',XX:'oc-xx',NN:'oc-nn'}[p.att]||'oc-nn';
+          const attLbl={AB:'체육+회식',AO:'체육만',BO:'회식만',XX:'미참석',NN:'미정'}[p.att]||'미정';
+          const org=[p.boomun,p.team,p.part].filter(Boolean).join(' › ');
+          return `<div class="org-person ${attCls}" style="min-width:90px">
+            <div class="op-name">${p.name}</div>
+            <div class="op-meta">${p.rank}${org?` · ${org}`:''}</div>
+            <div class="op-att">${attLbl}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// ─── INIT ───
+function init(){
+  const bonbus = [...new Set(people.map(p=>p.bonbu))];
+  const sel = document.getElementById('bonbuFilter');
+  bonbus.forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; sel.appendChild(o); });
+  updateSyncBadge(syncEnabled ? 'idle' : 'idle', syncEnabled ? '☁️ 연동 중…' : '☁️ URL 설정 필요');
+  render();
+}
+init();
+</script>
+</body>
+</html>
